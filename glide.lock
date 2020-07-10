@@ -1,5 +1,5 @@
 hash: bdc1c5bc69fdf4f5090517250bd6b594ad7a13615c00ec2715351be3f5fae0d9
-updated: 2019-09-25T00:30:57.166016471+03:00
+updated: 2020-07-10T10:28:43.457718607+02:00
 imports:
 - name: github.com/containernetworking/cni
   version: dc953e2fd91f9bc624b03cf9ea3706796bfee920
@@ -58,7 +58,7 @@ imports:
 - name: github.com/safchain/ethtool
   version: 42ed695e3de80b9d695f280295fd7994639f209d
 - name: github.com/stretchr/testify
-  version: 221dbe5ed46703ee255b1da0dec05086f5035f62
+  version: f654a9112bbeac49ca2cd45bfbe11533c4666cf8
   subpackages:
   - assert
   - mock
@@ -74,7 +74,7 @@ imports:
   - unix
 testImports:
 - name: github.com/davecgh/go-spew
-  version: d8f796af33cc11cb798c1aaeb27a4ebc5099927d
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
   subpackages:
   - spew
 - name: github.com/pmezard/go-difflib
@@ -83,5 +83,5 @@ testImports:
   - difflib
 - name: github.com/stretchr/objx
   version: 35313a95ee26395aa17d366c71a2ccf788fa69b6
-- name: gopkg.in/yaml.v2
-  version: 51d6538a90f86fe93ac480b35f37b2be17fef232
+- name: gopkg.in/yaml.v3
+  version: eeeca48fe7764f320e4870d231902bf9c1be2c08

@@ -35,7 +35,6 @@ endif
 GO      = go
 GODOC   = godoc
 GOFMT   = gofmt
-GLIDE   = glide
 TIMEOUT = 15
 V = 0
 Q = $(if $(filter 1,$V),,@)
@@ -135,13 +134,9 @@ fmt: ; $(info  running gofmt...) @ ## Run gofmt on all source files
 
 # Dependency management
 
-glide.lock: glide.yaml | $(BASE) ; $(info  updating dependencies...)
-	$Q cd $(BASE) && $(GLIDE) update -v
-	@touch $@
-vendor: glide.lock | $(BASE) ; $(info  retrieving dependencies...)
-	$Q cd $(BASE) && $(GLIDE) --quiet install -v
-	@ln -nsf . vendor/src
-	@touch $@
+.PHONY: deps-update
+deps-update: ; $(info  updating dependencies...)
+	go mod tidy && go mod vendor
 
 # Docker image
 # To pass proxy for Docker invoke it as 'make image HTTP_POXY=http://192.168.0.1:8080'
@@ -153,6 +148,7 @@ image: | $(BASE) ; $(info Building Docker image...)
 
 .PHONY: clean
 clean: ; $(info  Cleaning...)	@ ## Cleanup everything
+	@go clean --modcache
 	@rm -rf $(GOPATH)
 	@rm -rf $(BUILDDIR)/$(BINARY_NAME)
 	@rm -rf test/tests.* test/coverage.*
