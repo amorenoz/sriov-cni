@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	//nap "github.com/amorenoz/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	nautils "github.com/amorenoz/network-attachment-definition-client/pkg/utils"
 	"github.com/containernetworking/cni/pkg/skel"
 	sriovtypes "github.com/intel/sriov-cni/pkg/types"
 	"github.com/intel/sriov-cni/pkg/utils"
@@ -23,10 +25,22 @@ func LoadConf(bytes []byte) (*sriovtypes.NetConf, error) {
 		return nil, fmt.Errorf("LoadConf(): failed to load netconf: %v", err)
 	}
 
+	var pciAddress string
 	// DeviceID takes precedence; if we are given a VF pciaddr then work from there
 	if n.DeviceID != "" {
+		// Backwards compatible: Keep assuming DeviceID == pciAddress
+		pciAddress := n.DeviceID
+		if n.ResourceName != "" {
+			// The devicePlugin might have stored the address in the standard path
+			devInfo, err := nautils.LoadDeviceInfoFromDP(n.ResourceName, n.DeviceID)
+			if err != nil || devInfo.Type != "pci" {
+				fmt.Errorf("LoadConf(): Failed to load pci device information (%v) trying with deviceID == pciAddress", err)
+			} else {
+				pciAddress = devInfo.Pci.Address
+			}
+		}
 		// Get rest of the VF information
-		pfName, vfID, err := getVfInfo(n.DeviceID)
+		pfName, vfID, err := getVfInfo(pciAddress)
 		if err != nil {
 			return nil, fmt.Errorf("LoadConf(): failed to get VF information: %q", err)
 		}
@@ -37,12 +51,12 @@ func LoadConf(bytes []byte) (*sriovtypes.NetConf, error) {
 	}
 
 	// Assuming VF is netdev interface; Get interface name(s)
-	hostIFNames, err := utils.GetVFLinkNames(n.DeviceID)
+	hostIFNames, err := utils.GetVFLinkNames(pciAddress)
 	if err != nil || hostIFNames == "" {
 		// VF interface not found; check if VF has dpdk driver
-		hasDpdkDriver, err := utils.HasDpdkDriver(n.DeviceID)
+		hasDpdkDriver, err := utils.HasDpdkDriver(pciAddress)
 		if err != nil {
-			return nil, fmt.Errorf("LoadConf(): failed to detect if VF %s has dpdk driver %q", n.DeviceID, err)
+			return nil, fmt.Errorf("LoadConf(): failed to detect if VF %s has dpdk driver %q", pciAddress, err)
 		}
 		n.DPDKMode = hasDpdkDriver
 	}
@@ -52,7 +66,7 @@ func LoadConf(bytes []byte) (*sriovtypes.NetConf, error) {
 	}
 
 	if hostIFNames == "" && !n.DPDKMode {
-		return nil, fmt.Errorf("LoadConf(): the VF %s does not have a interface name or a dpdk driver", n.DeviceID)
+		return nil, fmt.Errorf("LoadConf(): the VF %s does not have a interface name or a dpdk driver", pciAddress)
 	}
 
 	if n.Vlan != nil {

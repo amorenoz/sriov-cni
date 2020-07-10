@@ -38,7 +38,8 @@ type NetConf struct {
 	MAC           string
 	Vlan          *int   `json:"vlan"`
 	VlanQoS       *int   `json:"vlanQoS"`
-	DeviceID      string `json:"deviceID"` // PCI address of a VF in valid sysfs format
+	DeviceID      string `json:"deviceID"`     // PCI address of a VF  or a deviceID whose information can be found
+	ResourceName  string `json:"resourceName"` // ResourceName used to fetch the device information
 	VFID          int
 	ContIFNames   string // VF names after in the container; used during deletion
 	MinTxRate     *int   `json:"min_tx_rate"`          // Mbps, 0 = disable rate limiting
