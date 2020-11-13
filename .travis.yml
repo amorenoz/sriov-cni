@@ -9,7 +9,7 @@ env:
 
 script:
   - make lint
-  - sudo -E env "PATH=$PATH" make test && sudo make clean
+  - sudo -E env "PATH=$PATH" make test && sudo -E env "PATH=$PATH" make clean
   - make build
   - sudo -E env "PATH=$PATH" make clean 
   - make image
