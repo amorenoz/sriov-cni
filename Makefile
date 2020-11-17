@@ -142,7 +142,7 @@ image: | $(BASE) ; $(info Building Docker image...)
 
 .PHONY: clean
 clean: | $(BASE) ; $(info  Cleaning...)	@ ## Cleanup everything
-	@cd $(BASE) && $(GO) clean --modcache
+	@cd $(BASE) && env GOPATH=$(GOPATH) $(GO) clean --modcache
 	@rm -rf $(GOPATH)
 	@rm -rf $(BUILDDIR)/$(BINARY_NAME)
 	@rm -rf test/tests.* test/coverage.*
